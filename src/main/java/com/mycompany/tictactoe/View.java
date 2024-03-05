@@ -11,6 +11,7 @@ import javax.swing.JButton;
 public class View extends javax.swing.JFrame {
 
     boolean whoseTurn;
+    boolean gameOver;
     
     /**
      * Creates new form View
@@ -18,6 +19,7 @@ public class View extends javax.swing.JFrame {
     public View() {
         initComponents();
         this.whoseTurn = false;
+        this.gameOver = false;
     }
 
     /**
@@ -43,7 +45,6 @@ public class View extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Liberation Sans", 0, 20)); // NOI18N
-        jLabel1.setText("jLabel1");
 
         jBtn1.setFont(new java.awt.Font("Liberation Sans", 0, 36)); // NOI18N
         jBtn1.addActionListener(new java.awt.event.ActionListener() {
@@ -115,7 +116,7 @@ public class View extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jBtn7, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
@@ -167,25 +168,26 @@ public class View extends javax.swing.JFrame {
     
     private void btnClicked(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClicked
         JButton btn = (JButton)evt.getSource();
-        if (btn.getText().equals("")) {
+        if (btn.getText().equals("") && !this.gameOver) {
             String player = (this.whoseTurn) ? "X" : "O";
             btn.setText(player);
-            this.whoseTurn = !this.whoseTurn;
             String winner = isWinner(player);
+            if (!winner.equals("")) {
+                jLabel1.setText(winner+" WINS THE GAME!!");
+                this.gameOver = true;
+            } else {
+                boolean draw = checkForDraw();
+                if (draw) {
+                    jLabel1.setText("Draw!!");
+                    this.gameOver = true;
+                }
+            }
+            this.whoseTurn = !this.whoseTurn;
         }
     }//GEN-LAST:event_btnClicked
 
     private String isWinner(String player) {
-        String[][] status = new String[3][3];
-        status[0][0] = jBtn1.getText();
-        status[0][1] = jBtn2.getText();
-        status[0][2] = jBtn3.getText();
-        status[1][0] = jBtn4.getText();
-        status[1][1] = jBtn5.getText();
-        status[1][2] = jBtn6.getText();
-        status[2][0] = jBtn7.getText();
-        status[2][1] = jBtn8.getText();
-        status[2][2] = jBtn9.getText();
+        String[][] status = getStatus();
 
         
         String winner = "";
@@ -207,20 +209,43 @@ public class View extends javax.swing.JFrame {
     }
 
     public boolean step(int stepR, int stepC, int row, int col, int count, String curTile, String[][] status) {
-        //row or col is out of bounds
         if (row < 0 || row >= 3 || col < 0 || col >= 3) return false;
-        //if current location on board has tile of the player that just placed a tile, continue
         if (status[row][col].equals(curTile))  {
             count++;
         } else {
             return false;
         }
-        //player has 4 tiles in a row, they win
         if (count==3) return true;
-        //if player hasn't won but is still on path of curTile's, then they continue to step
         if (step(stepR, stepC, row+stepR, col+stepC, count, curTile, status)) return true;
         
         return false;
+    }
+    
+    private boolean checkForDraw() {
+        String[][] status = getStatus();
+        
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (status[i][j].equals("")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    private String[][] getStatus() {
+        String[][] status = new String[3][3];
+        status[0][0] = jBtn1.getText();
+        status[0][1] = jBtn2.getText();
+        status[0][2] = jBtn3.getText();
+        status[1][0] = jBtn4.getText();
+        status[1][1] = jBtn5.getText();
+        status[1][2] = jBtn6.getText();
+        status[2][0] = jBtn7.getText();
+        status[2][1] = jBtn8.getText();
+        status[2][2] = jBtn9.getText();
+        return status;
     }
     
     /**
